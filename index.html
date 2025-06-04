@@ -121,6 +121,40 @@
       font-size: 12px;
     }
 
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--cor-clara);
+    }
+
+    .tab-button {
+      background-color: transparent;
+      color: var(--cor-texto);
+      border: none;
+      padding: 15px 25px;
+      cursor: pointer;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button:hover {
+      background-color: var(--cor-clara);
+    }
+
+    .tab-button.active {
+      color: var(--cor-primaria);
+      border-bottom-color: var(--cor-primaria);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     footer {
       margin-top: 40px;
       text-align: center;
@@ -132,11 +166,17 @@
 <body>
   <h1 class="titulo-centralizado">Sistema de Pedidos</h1>
 
-  <div class="header-actions">
-    <button onclick="abrirModal()">Novo Pedido</button>
+  <div class="tabs">
+    <button class="tab-button active" onclick="mostrarAba('pedidos')">Pedidos</button>
+    <button class="tab-button" onclick="mostrarAba('materiais')">Lista de Material</button>
   </div>
 
-  <h2 class="subtitulo">Pedidos Implantados</h2>
+  <div id="aba-pedidos" class="tab-content active">
+    <div class="header-actions">
+      <button onclick="abrirModal()">Novo Pedido</button>
+    </div>
+
+    <h2 class="subtitulo">Pedidos Implantados</h2></div>
 
   <div class="modal" id="pedidoModal">
     <div class="modal-content">
@@ -165,22 +205,55 @@
     </div>
   </div>
 
+  <div class="modal" id="materialModal">
+    <div class="modal-content">
+      <h2>Cadastrar Material</h2>
+      <form id="formMaterial">
+        <label>Descrição do Material:</label><input type="text" name="descricao" required />
+        <label>Setor:</label><input type="text" name="setor" required />
+        <button type="submit">Salvar Material</button>
+        <button type="button" onclick="fecharModalMaterial()" style="background-color: #ccc; color: #000;">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
   <table id="tabelaPedidos">
-    <thead>
-      <tr>
-        <th>Lote</th>
-        <th>Nº Pedido</th>
-        <th>Cliente</th>
-        <th>Material</th>
-        <th>Quantidade</th>
-        <th>Unidade</th>
-        <th>Observação</th>
-        <th>Data/Hora</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <thead>
+        <tr>
+          <th>Lote</th>
+          <th>Nº Pedido</th>
+          <th>Cliente</th>
+          <th>Material</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
+          <th>Observação</th>
+          <th>Data/Hora</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="aba-materiais" class="tab-content">
+    <div class="header-actions">
+      <button onclick="abrirModalMaterial()">Cadastrar Material</button>
+    </div>
+
+    <h2 class="subtitulo">Materiais Cadastrados</h2>
+
+    <table id="tabelaMateriais">
+      <thead>
+        <tr>
+          <th>Descrição do Material</th>
+          <th>Setor</th>
+          <th>Data/Hora</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <footer>
     Desenvolvido por @brunobranc
@@ -190,10 +263,18 @@
     const modal = document.getElementById("pedidoModal");
     const form = document.getElementById("formPedido");
     const tabela = document.getElementById("tabelaPedidos").querySelector("tbody");
+    
+    const modalMaterial = document.getElementById("materialModal");
+    const formMaterial = document.getElementById("formMaterial");
+    const tabelaMaterial = document.getElementById("tabelaMateriais").querySelector("tbody");
+    
     let pedidos = [];
+    let materiais = [];
     let editIndex = null;
+    let editMaterialIndex = null;
 
     const STORAGE_KEY = "pedidos-sistema";
+    const STORAGE_KEY_MATERIAIS = "materiais-sistema";
 
     function abrirModal() {
       form.reset();
@@ -212,6 +293,25 @@
     function carregarLocalStorage() {
       const dados = localStorage.getItem(STORAGE_KEY);
       return dados ? JSON.parse(dados) : [];
+    }
+
+    function salvarMateriaisLocalStorage() {
+      localStorage.setItem(STORAGE_KEY_MATERIAIS, JSON.stringify(materiais));
+    }
+
+    function carregarMateriaisLocalStorage() {
+      const dados = localStorage.getItem(STORAGE_KEY_MATERIAIS);
+      return dados ? JSON.parse(dados) : [];
+    }
+
+    function mostrarAba(aba) {
+      // Remove active de todas as abas
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Adiciona active na aba selecionada
+      document.querySelector(`[onclick="mostrarAba('${aba}')"]`).classList.add('active');
+      document.getElementById(`aba-${aba}`).classList.add('active');
     }
 
     function renderPedidos() {
@@ -236,9 +336,41 @@
       });
     }
 
+    function abrirModalMaterial() {
+      formMaterial.reset();
+      editMaterialIndex = null;
+      modalMaterial.style.display = "flex";
+    }
+
+    function fecharModalMaterial() {
+      modalMaterial.style.display = "none";
+    }
+
+    function renderMateriais() {
+      tabelaMaterial.innerHTML = "";
+      materiais.forEach((material, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${material.descricao}</td>
+          <td>${material.setor}</td>
+          <td>${material.dataHora}</td>
+          <td>
+            <button onclick="editarMaterial(${index})">Editar</button>
+            <button onclick="removerMaterial(${index})" style="background:#eee;color:#333;">Excluir</button>
+          </td>
+        `;
+        tabelaMaterial.appendChild(row);
+      });
+    }
+
     function carregarPedidos() {
       pedidos = carregarLocalStorage();
       renderPedidos();
+    }
+
+    function carregarMateriais() {
+      materiais = carregarMateriaisLocalStorage();
+      renderMateriais();
     }
 
     form.addEventListener("submit", (e) => {
@@ -262,6 +394,27 @@
       renderPedidos();
     });
 
+    formMaterial.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const dados = new FormData(formMaterial);
+      const novoMaterial = Object.fromEntries(dados.entries());
+      
+      // Adiciona data/hora atual
+      novoMaterial.dataHora = new Date().toLocaleString('pt-BR');
+
+      if (editMaterialIndex !== null) {
+        // Editando material existente
+        materiais[editMaterialIndex] = novoMaterial;
+      } else {
+        // Novo material
+        materiais.push(novoMaterial);
+      }
+
+      salvarMateriaisLocalStorage();
+      fecharModalMaterial();
+      renderMateriais();
+    });
+
     function editarPedido(index) {
       const pedido = pedidos[index];
       for (let campo in pedido) {
@@ -281,7 +434,29 @@
       }
     }
 
-    document.addEventListener("DOMContentLoaded", carregarPedidos);
+    function editarMaterial(index) {
+      const material = materiais[index];
+      for (let campo in material) {
+        if (campo !== "dataHora" && formMaterial.elements[campo]) {
+          formMaterial.elements[campo].value = material[campo];
+        }
+      }
+      editMaterialIndex = index;
+      modalMaterial.style.display = "flex";
+    }
+
+    function removerMaterial(index) {
+      if (confirm("Deseja realmente excluir este material?")) {
+        materiais.splice(index, 1);
+        salvarMateriaisLocalStorage();
+        renderMateriais();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      carregarPedidos();
+      carregarMateriais();
+    });
   </script>
 </body>
 </html>
