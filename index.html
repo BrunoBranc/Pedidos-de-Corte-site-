@@ -229,20 +229,14 @@
         <label>Número do Pedido:</label><input type="text" name="numero" required />
         <label>Cliente:</label><input type="text" name="cliente" required />
         <label>Material:</label>
-        <select name="material" id="selectMaterial" required>
+        <select name="material" id="selectMaterial" required onchange="atualizarUnidadeMaterial()">
           <option value="">Selecione um material...</option>
         </select>
+        <div id="infoUnidade" style="margin: 10px 0; padding: 10px; background-color: #f0f8ff; border-radius: 5px; display: none;">
+          <strong>Unidade de medida:</strong> <span id="unidadeTexto"></span>
+        </div>
+        <input type="hidden" name="unidade" id="unidadeHidden" />
         <label>Quantidade:</label><input type="number" step="0.01" name="quantidade" required />
-        <label>Unidade de Medida:</label>
-        <select name="unidade">
-          <option>Und</option>
-          <option>Pct</option>
-          <option>M²</option>
-          <option>M³</option>
-          <option>Bloco</option>
-          <option>Rolo</option>
-          <option>KG</option>
-        </select>
         <label>Observação:</label>
         <textarea name="observacao" rows="4"></textarea>
         <button type="submit">Salvar Pedido</button>
@@ -341,8 +335,36 @@
         const option = document.createElement("option");
         option.value = material.descricao;
         option.textContent = `${material.descricao} - ${material.setor}`;
+        option.dataset.unidade = material.unidade;
+        option.dataset.unidadesPacote = material.unidadesPacote || '';
         selectMaterial.appendChild(option);
       });
+    }
+
+    function atualizarUnidadeMaterial() {
+      const selectMaterial = document.getElementById("selectMaterial");
+      const infoUnidade = document.getElementById("infoUnidade");
+      const unidadeTexto = document.getElementById("unidadeTexto");
+      const unidadeHidden = document.getElementById("unidadeHidden");
+      
+      if (selectMaterial.value === "") {
+        infoUnidade.style.display = "none";
+        unidadeHidden.value = "";
+        return;
+      }
+      
+      const optionSelecionada = selectMaterial.options[selectMaterial.selectedIndex];
+      const unidade = optionSelecionada.dataset.unidade;
+      const unidadesPacote = optionSelecionada.dataset.unidadesPacote;
+      
+      let textoUnidade = unidade;
+      if (unidade === 'Pct' && unidadesPacote) {
+        textoUnidade = `Pct (${unidadesPacote} und/pct)`;
+      }
+      
+      unidadeTexto.textContent = textoUnidade;
+      unidadeHidden.value = textoUnidade;
+      infoUnidade.style.display = "block";
     }
 
     function fecharModal() {
@@ -524,6 +546,10 @@
           form.elements[campo].value = pedido[campo];
         }
       }
+      // Atualiza a unidade de medida após selecionar o material
+      setTimeout(() => {
+        atualizarUnidadeMaterial();
+      }, 100);
       editIndex = index;
       modal.style.display = "flex";
     }
