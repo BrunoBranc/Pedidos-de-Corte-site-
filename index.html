@@ -544,14 +544,16 @@
       const rows = document.querySelectorAll('#tabelaPedidos tbody tr');
       
       rows.forEach(row => {
-        const numero = row.cells[1].textContent.toLowerCase();
-        const cliente = row.cells[2].textContent.toLowerCase();
-        const dataHora = row.cells[7].textContent.toLowerCase();
-        
-        if (numero.includes(searchTerm) || cliente.includes(searchTerm) || dataHora.includes(searchTerm)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
+        if (row.cells && row.cells.length >= 8) {
+          const numero = row.cells[1].textContent.toLowerCase();
+          const cliente = row.cells[2].textContent.toLowerCase();
+          const dataHora = row.cells[7].textContent.toLowerCase();
+          
+          if (numero.includes(searchTerm) || cliente.includes(searchTerm) || dataHora.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
         }
       });
     }
@@ -561,13 +563,15 @@
       const rows = document.querySelectorAll('#tabelaMateriais tbody tr');
       
       rows.forEach(row => {
-        const descricao = row.cells[0].textContent.toLowerCase();
-        const setor = row.cells[1].textContent.toLowerCase();
-        
-        if (descricao.includes(searchTerm) || setor.includes(searchTerm)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
+        if (row.cells && row.cells.length >= 2) {
+          const descricao = row.cells[0].textContent.toLowerCase();
+          const setor = row.cells[1].textContent.toLowerCase();
+          
+          if (descricao.includes(searchTerm) || setor.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
         }
       });
     }
