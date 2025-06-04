@@ -193,7 +193,7 @@
     let pedidos = [];
     let editIndex = null;
 
-    const API_URL = "http://localhost:5000/pedidos";
+    const STORAGE_KEY = "pedidos-sistema";
 
     function abrirModal() {
       form.reset();
@@ -203,6 +203,15 @@
 
     function fecharModal() {
       modal.style.display = "none";
+    }
+
+    function salvarLocalStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
+    }
+
+    function carregarLocalStorage() {
+      const dados = localStorage.getItem(STORAGE_KEY);
+      return dados ? JSON.parse(dados) : [];
     }
 
     function renderPedidos() {
@@ -228,32 +237,29 @@
     }
 
     function carregarPedidos() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          pedidos = data;
-          renderPedidos();
-        });
+      pedidos = carregarLocalStorage();
+      renderPedidos();
     }
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const dados = new FormData(form);
       const novoPedido = Object.fromEntries(dados.entries());
+      
+      // Adiciona data/hora atual
+      novoPedido.dataHora = new Date().toLocaleString('pt-BR');
 
-      const method = editIndex !== null ? "PUT" : "POST";
-      const url = editIndex !== null ? `${API_URL}/${editIndex}` : API_URL;
+      if (editIndex !== null) {
+        // Editando pedido existente
+        pedidos[editIndex] = novoPedido;
+      } else {
+        // Novo pedido
+        pedidos.push(novoPedido);
+      }
 
-      fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novoPedido)
-      })
-        .then(res => res.json())
-        .then(() => {
-          fecharModal();
-          carregarPedidos();
-        });
+      salvarLocalStorage();
+      fecharModal();
+      renderPedidos();
     });
 
     function editarPedido(index) {
@@ -269,9 +275,9 @@
 
     function removerPedido(index) {
       if (confirm("Deseja realmente excluir este pedido?")) {
-        fetch(`${API_URL}/${index}`, { method: "DELETE" })
-          .then(res => res.json())
-          .then(() => carregarPedidos());
+        pedidos.splice(index, 1);
+        salvarLocalStorage();
+        renderPedidos();
       }
     }
 
