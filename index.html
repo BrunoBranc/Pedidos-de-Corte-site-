@@ -176,7 +176,25 @@
       <button onclick="abrirModal()">Novo Pedido</button>
     </div>
 
-    <h2 class="subtitulo">Pedidos Implantados</h2></div>
+    <h2 class="subtitulo">Pedidos Implantados</h2>
+
+    <table id="tabelaPedidos">
+      <thead>
+        <tr>
+          <th>Lote</th>
+          <th>Nº Pedido</th>
+          <th>Cliente</th>
+          <th>Material</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
+          <th>Observação</th>
+          <th>Data/Hora</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <div class="modal" id="pedidoModal">
     <div class="modal-content">
@@ -214,7 +232,6 @@
       <form id="formMaterial">
         <label>Descrição do Material:</label><input type="text" name="descricao" required />
         <label>Setor:</label><input type="text" name="setor" required />
-        <label>Quantidade:</label><input type="number" step="0.01" name="quantidade" required />
         <label>Unidade de Medida:</label>
         <select name="unidade" onchange="verificarPacote()" required>
           <option value="">Selecione...</option>
@@ -237,24 +254,6 @@
     </div>
   </div>
 
-  <table id="tabelaPedidos">
-      <thead>
-        <tr>
-          <th>Lote</th>
-          <th>Nº Pedido</th>
-          <th>Cliente</th>
-          <th>Material</th>
-          <th>Quantidade</th>
-          <th>Unidade</th>
-          <th>Observação</th>
-          <th>Data/Hora</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
   <div id="aba-materiais" class="tab-content">
     <div class="header-actions">
       <button onclick="abrirModalMaterial()">Cadastrar Material</button>
@@ -267,7 +266,6 @@
         <tr>
           <th>Descrição do Material</th>
           <th>Setor</th>
-          <th>Quantidade</th>
           <th>Unidade</th>
           <th>Data/Hora</th>
           <th>Ações</th>
@@ -409,7 +407,6 @@
         row.innerHTML = `
           <td>${material.descricao}</td>
           <td>${material.setor}</td>
-          <td>${material.quantidade}</td>
           <td>${unidadeTexto}</td>
           <td>${material.dataHora}</td>
           <td>
