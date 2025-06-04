@@ -461,6 +461,24 @@
       const dados = new FormData(form);
       const novoPedido = Object.fromEntries(dados.entries());
       
+      // Verifica se o número do pedido já existe (somente para novos pedidos)
+      if (editIndex === null) {
+        const numeroExiste = pedidos.some(pedido => pedido.numero === novoPedido.numero);
+        if (numeroExiste) {
+          alert(`Erro: Já existe um pedido com o número "${novoPedido.numero}". Por favor, use um número diferente.`);
+          return;
+        }
+      } else {
+        // Para edição, verifica se o número não existe em outros pedidos
+        const numeroExiste = pedidos.some((pedido, index) => 
+          index !== editIndex && pedido.numero === novoPedido.numero
+        );
+        if (numeroExiste) {
+          alert(`Erro: Já existe um pedido com o número "${novoPedido.numero}". Por favor, use um número diferente.`);
+          return;
+        }
+      }
+      
       // Adiciona data/hora atual
       novoPedido.dataHora = new Date().toLocaleString('pt-BR');
 
