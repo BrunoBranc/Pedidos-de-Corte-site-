@@ -211,6 +211,23 @@
       <form id="formMaterial">
         <label>Descrição do Material:</label><input type="text" name="descricao" required />
         <label>Setor:</label><input type="text" name="setor" required />
+        <label>Quantidade:</label><input type="number" step="0.01" name="quantidade" required />
+        <label>Unidade de Medida:</label>
+        <select name="unidade" onchange="verificarPacote()" required>
+          <option value="">Selecione...</option>
+          <option value="Und">Und</option>
+          <option value="Pct">Pct</option>
+          <option value="M²">M²</option>
+          <option value="M³">M³</option>
+          <option value="Rolo">Rolo</option>
+          <option value="Bloco">Bloco</option>
+          <option value="KG">KG</option>
+          <option value="Saco">Saco</option>
+        </select>
+        <div id="campoPacote" style="display: none;">
+          <label>Quantas unidades no pacote?</label>
+          <input type="number" name="unidadesPacote" min="1" />
+        </div>
         <button type="submit">Salvar Material</button>
         <button type="button" onclick="fecharModalMaterial()" style="background-color: #ccc; color: #000;">Cancelar</button>
       </form>
@@ -247,6 +264,8 @@
         <tr>
           <th>Descrição do Material</th>
           <th>Setor</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
           <th>Data/Hora</th>
           <th>Ações</th>
         </tr>
@@ -346,13 +365,34 @@
       modalMaterial.style.display = "none";
     }
 
+    function verificarPacote() {
+      const unidade = formMaterial.elements.unidade.value;
+      const campoPacote = document.getElementById('campoPacote');
+      
+      if (unidade === 'Pct') {
+        campoPacote.style.display = 'block';
+        formMaterial.elements.unidadesPacote.required = true;
+      } else {
+        campoPacote.style.display = 'none';
+        formMaterial.elements.unidadesPacote.required = false;
+        formMaterial.elements.unidadesPacote.value = '';
+      }
+    }
+
     function renderMateriais() {
       tabelaMaterial.innerHTML = "";
       materiais.forEach((material, index) => {
         const row = document.createElement("tr");
+        let unidadeTexto = material.unidade;
+        if (material.unidade === 'Pct' && material.unidadesPacote) {
+          unidadeTexto = `Pct (${material.unidadesPacote} und/pct)`;
+        }
+        
         row.innerHTML = `
           <td>${material.descricao}</td>
           <td>${material.setor}</td>
+          <td>${material.quantidade}</td>
+          <td>${unidadeTexto}</td>
           <td>${material.dataHora}</td>
           <td>
             <button onclick="editarMaterial(${index})">Editar</button>
@@ -442,6 +482,8 @@
         }
       }
       editMaterialIndex = index;
+      // Verificar se deve mostrar campo de pacote
+      verificarPacote();
       modalMaterial.style.display = "flex";
     }
 
