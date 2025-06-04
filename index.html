@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Pedidos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cor-primaria: #4da3ff;
+      --cor-clara: #e6f2ff;
+      --cor-fundo: #f9fbfd;
+      --cor-texto: #333;
+      --cor-borda: #ccc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      padding: 40px;
+    }
+
+    h1, h2 {
+      color: var(--cor-primaria);
+    }
+
+    .titulo-centralizado {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+
+    .subtitulo {
+      font-size: 1.5em;
+      color: var(--cor-primaria);
+      margin: 40px 0 20px;
+      border-bottom: 2px solid var(--cor-clara);
+      padding-bottom: 5px;
+    }
+
+    button {
+      background-color: var(--cor-primaria);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: #3392f0;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid var(--cor-borda);
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    th, td {
+      border: 1px solid var(--cor-borda);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--cor-clara);
+    }
+
+    td button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="titulo-centralizado">Sistema de Pedidos</h1>
+
+  <div class="header-actions">
+    <button onclick="abrirModal()">Novo Pedido</button>
+  </div>
+
+  <h2 class="subtitulo">Pedidos Implantados</h2>
+
+  <div class="modal" id="pedidoModal">
+    <div class="modal-content">
+      <h2>Inserir Pedido</h2>
+      <form id="formPedido">
+        <label>Lote:</label><input type="text" name="lote" required />
+        <label>Número do Pedido:</label><input type="text" name="numero" required />
+        <label>Cliente:</label><input type="text" name="cliente" required />
+        <label>Material:</label><input type="text" name="material" required />
+        <label>Quantidade:</label><input type="number" step="0.01" name="quantidade" required />
+        <label>Unidade de Medida:</label>
+        <select name="unidade">
+          <option>Und</option>
+          <option>Pct</option>
+          <option>M²</option>
+          <option>M³</option>
+          <option>Bloco</option>
+          <option>Rolo</option>
+          <option>KG</option>
+        </select>
+        <label>Observação:</label>
+        <textarea name="observacao" rows="4"></textarea>
+        <button type="submit">Salvar Pedido</button>
+        <button type="button" onclick="fecharModal()" style="background-color: #ccc; color: #000;">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <table id="tabelaPedidos">
+    <thead>
+      <tr>
+        <th>Lote</th>
+        <th>Nº Pedido</th>
+        <th>Cliente</th>
+        <th>Material</th>
+        <th>Quantidade</th>
+        <th>Unidade</th>
+        <th>Observação</th>
+        <th>Data/Hora</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <footer>
+    Desenvolvido por @brunobranc
+  </footer>
+
+  <script>
+    const modal = document.getElementById("pedidoModal");
+    const form = document.getElementById("formPedido");
+    const tabela = document.getElementById("tabelaPedidos").querySelector("tbody");
+    let pedidos = [];
+    let editIndex = null;
+
+    const API_URL = "http://localhost:5000/pedidos";
+
+    function abrirModal() {
+      form.reset();
+      editIndex = null;
+      modal.style.display = "flex";
+    }
+
+    function fecharModal() {
+      modal.style.display = "none";
+    }
+
+    function renderPedidos() {
+      tabela.innerHTML = "";
+      pedidos.forEach((pedido, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${pedido.lote}</td>
+          <td>${pedido.numero}</td>
+          <td>${pedido.cliente}</td>
+          <td>${pedido.material}</td>
+          <td>${pedido.quantidade}</td>
+          <td>${pedido.unidade}</td>
+          <td>${pedido.observacao}</td>
+          <td>${pedido.dataHora}</td>
+          <td>
+            <button onclick="editarPedido(${index})">Editar</button>
+            <button onclick="removerPedido(${index})" style="background:#eee;color:#333;">Excluir</button>
+          </td>
+        `;
+        tabela.appendChild(row);
+      });
+    }
+
+    function carregarPedidos() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          pedidos = data;
+          renderPedidos();
+        });
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const dados = new FormData(form);
+      const novoPedido = Object.fromEntries(dados.entries());
+
+      const method = editIndex !== null ? "PUT" : "POST";
+      const url = editIndex !== null ? `${API_URL}/${editIndex}` : API_URL;
+
+      fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoPedido)
+      })
+        .then(res => res.json())
+        .then(() => {
+          fecharModal();
+          carregarPedidos();
+        });
+    });
+
+    function editarPedido(index) {
+      const pedido = pedidos[index];
+      for (let campo in pedido) {
+        if (campo !== "dataHora" && form.elements[campo]) {
+          form.elements[campo].value = pedido[campo];
+        }
+      }
+      editIndex = index;
+      modal.style.display = "flex";
+    }
+
+    function removerPedido(index) {
+      if (confirm("Deseja realmente excluir este pedido?")) {
+        fetch(`${API_URL}/${index}`, { method: "DELETE" })
+          .then(res => res.json())
+          .then(() => carregarPedidos());
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", carregarPedidos);
+  </script>
+</body>
+</html>
