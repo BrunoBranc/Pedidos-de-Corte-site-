@@ -39,8 +39,30 @@
 
     .header-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 30px;
+    }
+
+    .search-container {
+      flex: 1;
+      max-width: 400px;
+      margin-right: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid var(--cor-clara);
+      border-radius: 25px;
+      font-size: 14px;
+      margin-bottom: 0;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-container input:focus {
+      outline: none;
+      border-color: var(--cor-primaria);
     }
 
     .subtitulo {
@@ -173,6 +195,9 @@
 
   <div id="aba-pedidos" class="tab-content active">
     <div class="header-actions">
+      <div class="search-container">
+        <input type="text" id="searchPedidos" placeholder="🔍 Pesquisar por nº pedido, cliente ou data..." onkeyup="pesquisarPedidos()">
+      </div>
       <button onclick="abrirModal()">Novo Pedido</button>
     </div>
 
@@ -256,6 +281,9 @@
 
   <div id="aba-materiais" class="tab-content">
     <div class="header-actions">
+      <div class="search-container">
+        <input type="text" id="searchMateriais" placeholder="🔍 Pesquisar por material ou setor..." onkeyup="pesquisarMateriais()">
+      </div>
       <button onclick="abrirModalMaterial()">Cadastrar Material</button>
     </div>
 
@@ -509,6 +537,39 @@
         salvarMateriaisLocalStorage();
         renderMateriais();
       }
+    }
+
+    function pesquisarPedidos() {
+      const searchTerm = document.getElementById('searchPedidos').value.toLowerCase();
+      const rows = document.querySelectorAll('#tabelaPedidos tbody tr');
+      
+      rows.forEach(row => {
+        const numero = row.cells[1].textContent.toLowerCase();
+        const cliente = row.cells[2].textContent.toLowerCase();
+        const dataHora = row.cells[7].textContent.toLowerCase();
+        
+        if (numero.includes(searchTerm) || cliente.includes(searchTerm) || dataHora.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    function pesquisarMateriais() {
+      const searchTerm = document.getElementById('searchMateriais').value.toLowerCase();
+      const rows = document.querySelectorAll('#tabelaMateriais tbody tr');
+      
+      rows.forEach(row => {
+        const descricao = row.cells[0].textContent.toLowerCase();
+        const setor = row.cells[1].textContent.toLowerCase();
+        
+        if (descricao.includes(searchTerm) || setor.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
