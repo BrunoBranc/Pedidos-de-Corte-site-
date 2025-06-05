@@ -315,8 +315,7 @@
     let editIndex = null;
     let editMaterialIndex = null;
 
-    const STORAGE_KEY = "pedidos-sistema";
-    const STORAGE_KEY_MATERIAIS = "materiais-sistema";
+    const API_BASE = 'http://localhost:5000/api';
 
     function abrirModal() {
       form.reset();
@@ -371,22 +370,143 @@
       modal.style.display = "none";
     }
 
-    function salvarLocalStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
+    // Funções de API
+    async function carregarPedidosAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/pedidos`);
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+        alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+        return [];
+      }
     }
 
-    function carregarLocalStorage() {
-      const dados = localStorage.getItem(STORAGE_KEY);
-      return dados ? JSON.parse(dados) : [];
+    async function salvarPedidoAPI(pedido) {
+      try {
+        const response = await fetch(`${API_BASE}/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pedido)
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao salvar pedido');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao salvar pedido:', error);
+        throw error;
+      }
     }
 
-    function salvarMateriaisLocalStorage() {
-      localStorage.setItem(STORAGE_KEY_MATERIAIS, JSON.stringify(materiais));
+    async function atualizarPedidoAPI(id, pedido) {
+      try {
+        const response = await fetch(`${API_BASE}/pedidos/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pedido)
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao atualizar pedido');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao atualizar pedido:', error);
+        throw error;
+      }
     }
 
-    function carregarMateriaisLocalStorage() {
-      const dados = localStorage.getItem(STORAGE_KEY_MATERIAIS);
-      return dados ? JSON.parse(dados) : [];
+    async function removerPedidoAPI(id) {
+      try {
+        const response = await fetch(`${API_BASE}/pedidos/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao remover pedido');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao remover pedido:', error);
+        throw error;
+      }
+    }
+
+    async function carregarMateriaisAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/materiais`);
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao carregar materiais:', error);
+        alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+        return [];
+      }
+    }
+
+    async function salvarMaterialAPI(material) {
+      try {
+        const response = await fetch(`${API_BASE}/materiais`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(material)
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao salvar material');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao salvar material:', error);
+        throw error;
+      }
+    }
+
+    async function atualizarMaterialAPI(id, material) {
+      try {
+        const response = await fetch(`${API_BASE}/materiais/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(material)
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao atualizar material');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao atualizar material:', error);
+        throw error;
+      }
+    }
+
+    async function removerMaterialAPI(id) {
+      try {
+        const response = await fetch(`${API_BASE}/materiais/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erro ao remover material');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao remover material:', error);
+        throw error;
+      }
     }
 
     function mostrarAba(aba) {
@@ -468,74 +588,58 @@
       });
     }
 
-    function carregarPedidos() {
-      pedidos = carregarLocalStorage();
+    async function carregarPedidos() {
+      pedidos = await carregarPedidosAPI();
       renderPedidos();
     }
 
-    function carregarMateriais() {
-      materiais = carregarMateriaisLocalStorage();
+    async function carregarMateriais() {
+      materiais = await carregarMateriaisAPI();
       renderMateriais();
     }
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const dados = new FormData(form);
       const novoPedido = Object.fromEntries(dados.entries());
       
-      // Verifica se o número do pedido já existe (somente para novos pedidos)
-      if (editIndex === null) {
-        const numeroExiste = pedidos.some(pedido => pedido.numero === novoPedido.numero);
-        if (numeroExiste) {
-          alert(`Erro: Já existe um pedido com o número "${novoPedido.numero}". Por favor, use um número diferente.`);
-          return;
+      try {
+        if (editIndex !== null) {
+          // Editando pedido existente
+          const pedidoEditado = pedidos[editIndex];
+          await atualizarPedidoAPI(pedidoEditado.id, novoPedido);
+        } else {
+          // Novo pedido
+          await salvarPedidoAPI(novoPedido);
         }
-      } else {
-        // Para edição, verifica se o número não existe em outros pedidos
-        const numeroExiste = pedidos.some((pedido, index) => 
-          index !== editIndex && pedido.numero === novoPedido.numero
-        );
-        if (numeroExiste) {
-          alert(`Erro: Já existe um pedido com o número "${novoPedido.numero}". Por favor, use um número diferente.`);
-          return;
-        }
-      }
-      
-      // Adiciona data/hora atual
-      novoPedido.dataHora = new Date().toLocaleString('pt-BR');
 
-      if (editIndex !== null) {
-        // Editando pedido existente
-        pedidos[editIndex] = novoPedido;
-      } else {
-        // Novo pedido
-        pedidos.push(novoPedido);
+        fecharModal();
+        await carregarPedidos();
+      } catch (error) {
+        alert(error.message);
       }
-
-      salvarLocalStorage();
-      fecharModal();
-      renderPedidos();
     });
 
-    formMaterial.addEventListener("submit", (e) => {
+    formMaterial.addEventListener("submit", async (e) => {
       e.preventDefault();
       const dados = new FormData(formMaterial);
       const novoMaterial = Object.fromEntries(dados.entries());
       
-      // Adiciona data/hora atual
-      novoMaterial.dataHora = new Date().toLocaleString('pt-BR');
+      try {
+        if (editMaterialIndex !== null) {
+          // Editando material existente
+          const materialEditado = materiais[editMaterialIndex];
+          await atualizarMaterialAPI(materialEditado.id, novoMaterial);
+        } else {
+          // Novo material
+          await salvarMaterialAPI(novoMaterial);
+        }
 
-      if (editMaterialIndex !== null) {
-        // Editando material existente
-        materiais[editMaterialIndex] = novoMaterial;
-      } else {
-        // Novo material
-        materiais.push(novoMaterial);
+        fecharModalMaterial();
+        await carregarMateriais();
+      } catch (error) {
+        alert(error.message);
       }
-
-      salvarMateriaisLocalStorage();
-      fecharModalMaterial();
-      renderMateriais();
     });
 
     function editarPedido(index) {
@@ -554,11 +658,15 @@
       modal.style.display = "flex";
     }
 
-    function removerPedido(index) {
+    async function removerPedido(index) {
       if (confirm("Deseja realmente excluir este pedido?")) {
-        pedidos.splice(index, 1);
-        salvarLocalStorage();
-        renderPedidos();
+        try {
+          const pedido = pedidos[index];
+          await removerPedidoAPI(pedido.id);
+          await carregarPedidos();
+        } catch (error) {
+          alert(error.message);
+        }
       }
     }
 
@@ -575,11 +683,15 @@
       modalMaterial.style.display = "flex";
     }
 
-    function removerMaterial(index) {
+    async function removerMaterial(index) {
       if (confirm("Deseja realmente excluir este material?")) {
-        materiais.splice(index, 1);
-        salvarMateriaisLocalStorage();
-        renderMateriais();
+        try {
+          const material = materiais[index];
+          await removerMaterialAPI(material.id);
+          await carregarMateriais();
+        } catch (error) {
+          alert(error.message);
+        }
       }
     }
 
