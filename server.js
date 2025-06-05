@@ -72,14 +72,19 @@ app.post('/api/pedidos', (req, res) => {
   const clientes = lerArquivo(CLIENTES_FILE);
   const clienteExiste = clientes.some(cliente => cliente.nome.toLowerCase() === novoPedido.cliente.toLowerCase());
   
-  if (!clienteExiste && novoPedido.cliente) {
+  if (!clienteExiste && novoPedido.cliente && novoPedido.cliente.trim() !== '') {
     const novoCliente = {
       id: Date.now().toString() + '_cliente',
-      nome: novoPedido.cliente,
+      nome: novoPedido.cliente.trim(),
       dataHora: new Date().toLocaleString('pt-BR')
     };
     clientes.push(novoCliente);
-    escreverArquivo(CLIENTES_FILE, clientes);
+    const clienteSalvo = escreverArquivo(CLIENTES_FILE, clientes);
+    if (!clienteSalvo) {
+      console.error('Erro ao salvar cliente:', novoPedido.cliente);
+    } else {
+      console.log('Cliente salvo:', novoPedido.cliente);
+    }
   }
   
   pedidos.push(novoPedido);

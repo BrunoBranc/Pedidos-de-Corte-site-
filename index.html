@@ -538,9 +538,15 @@
     async function carregarClientesAPI() {
       try {
         const response = await fetch(`${API_BASE}/clientes`);
-        return await response.json();
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Clientes carregados:', data.length);
+        return data;
       } catch (error) {
         console.error('Erro ao carregar clientes:', error);
+        alert('Erro ao conectar com o servidor para carregar clientes. Verifique se o backend está rodando.');
         return [];
       }
     }
@@ -772,12 +778,14 @@
           await atualizarPedidoAPI(pedidoEditado.id, novoPedido);
         } else {
           // Novo pedido
+          console.log('Salvando novo pedido com cliente:', novoPedido.cliente);
           await salvarPedidoAPI(novoPedido);
         }
 
         fecharModal();
         await carregarPedidos();
         await carregarClientes(); // Recarregar clientes após salvar pedido
+        console.log('Pedido salvo e dados recarregados');
       } catch (error) {
         alert(error.message);
       }
