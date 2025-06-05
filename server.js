@@ -16,6 +16,7 @@ app.use(express.static('.'));
 // Arquivos de dados
 const PEDIDOS_FILE = path.join(__dirname, 'data', 'pedidos.json');
 const MATERIAIS_FILE = path.join(__dirname, 'data', 'materiais.json');
+const CLIENTES_FILE = path.join(__dirname, 'data', 'clientes.json');
 
 // Criar diretório data se não existir
 if (!fs.existsSync('data')) {
@@ -65,6 +66,20 @@ app.post('/api/pedidos', (req, res) => {
     return res.status(400).json({ 
       error: `Já existe um pedido com o número "${novoPedido.numero}"` 
     });
+  }
+  
+  // Salvar cliente se não existir
+  const clientes = lerArquivo(CLIENTES_FILE);
+  const clienteExiste = clientes.some(cliente => cliente.nome.toLowerCase() === novoPedido.cliente.toLowerCase());
+  
+  if (!clienteExiste && novoPedido.cliente) {
+    const novoCliente = {
+      id: Date.now().toString() + '_cliente',
+      nome: novoPedido.cliente,
+      dataHora: new Date().toLocaleString('pt-BR')
+    };
+    clientes.push(novoCliente);
+    escreverArquivo(CLIENTES_FILE, clientes);
   }
   
   pedidos.push(novoPedido);
@@ -176,6 +191,12 @@ app.delete('/api/materiais/:id', (req, res) => {
   } else {
     res.status(500).json({ error: 'Erro ao remover material' });
   }
+});
+
+// Rotas para Clientes
+app.get('/api/clientes', (req, res) => {
+  const clientes = lerArquivo(CLIENTES_FILE);
+  res.json(clientes);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

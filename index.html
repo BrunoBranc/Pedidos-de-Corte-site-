@@ -225,7 +225,13 @@
       <form id="formPedido">
         <label>Lote:</label><input type="text" name="lote" required />
         <label>Número do Pedido:</label><input type="text" name="numero" required />
-        <label>Cliente:</label><input type="text" name="cliente" required />
+        <label>Cliente:</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="text" name="cliente" id="inputCliente" required style="margin-bottom: 0; padding-right: 40px;" />
+          <button type="button" onclick="abrirBuscaCliente()" style="position: absolute; right: 5px; background: none; border: none; cursor: pointer; padding: 5px; color: var(--cor-primaria);" title="Buscar cliente existente">
+            🔍
+          </button>
+        </div>
         <div id="materiaisContainer">
           <h3 style="margin: 20px 0 10px 0; color: var(--cor-primaria);">Materiais do Pedido</h3>
           <div id="listaMateriais">
@@ -250,6 +256,21 @@
         <button type="submit">Salvar Pedido</button>
         <button type="button" onclick="fecharModal()" style="background-color: #ccc; color: #000;">Cancelar</button>
       </form>
+    </div>
+  </div>
+
+  <div class="modal" id="clienteModal">
+    <div class="modal-content">
+      <h2>Buscar Cliente</h2>
+      <div style="margin-bottom: 15px;">
+        <input type="text" id="searchClienteModal" placeholder="🔍 Digite para buscar cliente..." onkeyup="filtrarClientes()">
+      </div>
+      <div id="listaClientes" style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px;">
+        <!-- Lista de clientes aparecerá aqui -->
+      </div>
+      <div style="margin-top: 15px; text-align: right;">
+        <button type="button" onclick="fecharModalCliente()" style="background-color: #ccc; color: #000;">Cancelar</button>
+      </div>
     </div>
   </div>
 
@@ -320,6 +341,7 @@
     
     let pedidos = [];
     let materiais = [];
+    let clientes = [];
     let editIndex = null;
     let editMaterialIndex = null;
     let materiaisTemporarios = []; // Para armazenar materiais do pedido atual
@@ -513,6 +535,16 @@
       }
     }
 
+    async function carregarClientesAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/clientes`);
+        return await response.json();
+      } catch (error) {
+        console.error('Erro ao carregar clientes:', error);
+        return [];
+      }
+    }
+
     async function salvarMaterialAPI(material) {
       try {
         const response = await fetch(`${API_BASE}/materiais`, {
@@ -662,6 +694,65 @@
       renderMateriais();
     }
 
+    async function carregarClientes() {
+      clientes = await carregarClientesAPI();
+    }
+
+    function abrirBuscaCliente() {
+      popularListaClientes();
+      document.getElementById('clienteModal').style.display = 'flex';
+    }
+
+    function fecharModalCliente() {
+      document.getElementById('clienteModal').style.display = 'none';
+    }
+
+    function popularListaClientes() {
+      const listaClientes = document.getElementById('listaClientes');
+      
+      if (clientes.length === 0) {
+        listaClientes.innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">Nenhum cliente cadastrado ainda</p>';
+        return;
+      }
+      
+      listaClientes.innerHTML = clientes.map(cliente => `
+        <div style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; hover: background-color: #f5f5f5;" 
+             onclick="selecionarCliente('${cliente.nome.replace(/'/g, "\\'")}')">
+          <strong>${cliente.nome}</strong>
+          <div style="font-size: 12px; color: #666;">Cadastrado em: ${cliente.dataHora}</div>
+        </div>
+      `).join('');
+    }
+
+    function selecionarCliente(nomeCliente) {
+      document.getElementById('inputCliente').value = nomeCliente;
+      fecharModalCliente();
+    }
+
+    function filtrarClientes() {
+      const searchTerm = document.getElementById('searchClienteModal').value.toLowerCase();
+      const clientesFiltrados = clientes.filter(cliente => 
+        cliente.nome.toLowerCase().includes(searchTerm)
+      );
+      
+      const listaClientes = document.getElementById('listaClientes');
+      
+      if (clientesFiltrados.length === 0) {
+        listaClientes.innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">Nenhum cliente encontrado</p>';
+        return;
+      }
+      
+      listaClientes.innerHTML = clientesFiltrados.map(cliente => `
+        <div style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;" 
+             onmouseover="this.style.backgroundColor='#f5f5f5'" 
+             onmouseout="this.style.backgroundColor=''"
+             onclick="selecionarCliente('${cliente.nome.replace(/'/g, "\\'")}')">
+          <strong>${cliente.nome}</strong>
+          <div style="font-size: 12px; color: #666;">Cadastrado em: ${cliente.dataHora}</div>
+        </div>
+      `).join('');
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       
@@ -686,6 +777,7 @@
 
         fecharModal();
         await carregarPedidos();
+        await carregarClientes(); // Recarregar clientes após salvar pedido
       } catch (error) {
         alert(error.message);
       }
@@ -820,6 +912,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       carregarPedidos();
       carregarMateriais();
+      carregarClientes();
     });
   </script>
 </body>
