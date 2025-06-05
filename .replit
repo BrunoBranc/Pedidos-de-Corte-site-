@@ -38,6 +38,15 @@ args = "npm install"
 task = "shell.exec"
 args = "node server.js"
 
+[[workflows.workflow]]
+name = "node server.js"
+mode = "sequential"
+author = 36573626
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Serve static"
+
 [[ports]]
 localPort = 80
 externalPort = 80
