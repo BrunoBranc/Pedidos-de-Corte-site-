@@ -1,0 +1,182 @@
+[
+  {
+    "lote": "1",
+    "numero": "2767801",
+    "cliente": "DIMASER PRODUTOS",
+    "observacao": "",
+    "materiais": [
+      {
+        "descricao": "ISOFORRO TEXT BRANCO 20MM",
+        "quantidade": 8,
+        "unidade": "Pct (10 und/pct)"
+      }
+    ],
+    "id": "1749150906504",
+    "dataHora": "05/06/2025, 16:15:06"
+  },
+  {
+    "lote": "1",
+    "numero": "2769801",
+    "cliente": "LUIZ ANTONIO RODRIGUES",
+    "observacao": "Luiz Artesão",
+    "materiais": [
+      {
+        "descricao": "BOLA DECORAT D 90MM",
+        "quantidade": 2,
+        "unidade": "Pct (20 und/pct)"
+      },
+      {
+        "descricao": "EPS TP 2 D 150x100MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 D 200x100MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 D 200x120MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 D 250x100MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 D 250x120MM (BASE)",
+        "quantidade": 30,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 QUADRADA 120x120x280MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 2 QUADRADA 140x140x330MM (BASE)",
+        "quantidade": 50,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 1 CL F 1000x500x5mm",
+        "quantidade": 1,
+        "unidade": "Pct (50 und/pct)"
+      }
+    ],
+    "id": "1749151556961",
+    "dataHora": "05/06/2025, 16:25:56"
+  },
+  {
+    "lote": "2",
+    "numero": "2776101",
+    "cliente": "DGS INDUSTRIAL",
+    "observacao": "",
+    "materiais": [
+      {
+        "descricao": "EPS TP 1 CL F TARUGO 315x1000mm",
+        "quantidade": 20,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 1 CL F TARUGO 400x1000mm",
+        "quantidade": 40,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TP 1 CL F TARUGO 450x1000mm",
+        "quantidade": 50,
+        "unidade": "Und"
+      }
+    ],
+    "id": "1749151681905",
+    "dataHora": "05/06/2025, 16:28:01"
+  },
+  {
+    "lote": "2",
+    "numero": "2716201",
+    "cliente": "FREIBA ENGENHARIA",
+    "observacao": "",
+    "materiais": [
+      {
+        "descricao": "EPS TP 1 CL F 1000x500x20m (m²)",
+        "quantidade": 200,
+        "unidade": "M²"
+      },
+      {
+        "descricao": "ISOCOLA BASE D'AGUA 5KG",
+        "quantidade": 2,
+        "unidade": "Und"
+      }
+    ],
+    "id": "1749151843935",
+    "dataHora": "05/06/2025, 16:30:43"
+  },
+  {
+    "lote": "2",
+    "numero": "2772801",
+    "cliente": "GEPLASTER COMERCIO",
+    "observacao": "",
+    "materiais": [
+      {
+        "descricao": "ISOFORRO TEXT BRANCO 20MM",
+        "quantidade": 30,
+        "unidade": "Pct (10 und/pct)"
+      }
+    ],
+    "id": "1749151862630",
+    "dataHora": "05/06/2025, 16:31:02"
+  },
+  {
+    "lote": "2",
+    "numero": "2776001",
+    "cliente": "PERFURACOES H2O",
+    "observacao": "140 metros",
+    "materiais": [
+      {
+        "descricao": "ADESIVO BICOMP A (4.400KG)",
+        "quantidade": 4,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "ADESIVO BICOMP B (0.600KG)",
+        "quantidade": 4,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TELHA 2000x980x30mm",
+        "quantidade": 70,
+        "unidade": "Und"
+      }
+    ],
+    "id": "1749151902951",
+    "dataHora": "05/06/2025, 16:31:42"
+  },
+  {
+    "lote": "2",
+    "numero": "2775001",
+    "cliente": "BFM FUNDACOES",
+    "observacao": "150 metros",
+    "materiais": [
+      {
+        "descricao": "ADESIVO BICOMP A (4.400KG)",
+        "quantidade": 6,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "ADESIVO BICOMP B (0.600KG)",
+        "quantidade": 6,
+        "unidade": "Und"
+      },
+      {
+        "descricao": "EPS TELHA 2000x980x30mm",
+        "quantidade": 75,
+        "unidade": "Und"
+      }
+    ],
+    "id": "1749151934400",
+    "dataHora": "05/06/2025, 16:32:14"
+  }
+]
